@@ -2,12 +2,10 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 import crud
+from api.schemas.todo import (CreateTodoSchema,
+                              TodoSchema,
+                              UpdateTodoSchema)
 from db.database import get_db
-from api.schemas.todo import (
-    CreateTodoSchema,
-    TodoSchema,
-    UpdateTodoSchema
-)
 
 
 todo_router = APIRouter(
