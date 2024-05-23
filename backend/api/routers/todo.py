@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, status
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 import crud
@@ -59,4 +60,7 @@ def update_todo(
     status_code=status.HTTP_204_NO_CONTENT
 )
 def delete_todo(todo_id: int, db: Session = Depends(get_db)):
-    return crud.delete_todo(db, todo_id)
+    crud.delete_todo(db, todo_id)
+    return JSONResponse(
+        content={'detail': f'A task id \"{todo_id}\" was deleted.'}
+    )

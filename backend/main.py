@@ -9,17 +9,22 @@ from db import database, models
 # Создание таблиц в БД SQLite3
 models.Base.metadata.create_all(database.engine)
 
-app = FastAPI()
+app = FastAPI(debug=True)
 
 app.include_router(todo_router)
 
+
+def start_server():
+    uvicorn.run(
+        app="main:app",
+        host="127.0.0.1",
+        port=8000,
+        reload=True
+    )
+
+
 if __name__ == "__main__":
     try:
-        uvicorn.run(
-            app="main:app",
-            host="127.0.0.1",
-            port=8000,
-            reload=True)
+        start_server()
     except KeyboardInterrupt:
-        print('Interrupted')
         sys.exit(0)
