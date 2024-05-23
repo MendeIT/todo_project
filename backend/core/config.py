@@ -9,15 +9,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 class Settings(BaseSettings):
-    DEBUG: str
-    HOST: str
-    PORT: str
-
-    DB_NAME: str
+    DEBUG: bool
+    UVICORN_HOST: str
+    UVICORN_PORT: int
+    SQLITE_NAME: str
 
     @property
     def DATABASE_URL(self):
-        return f'sqlite:///{BASE_DIR}/{self.DB_NAME}'
+        return f'sqlite:///{BASE_DIR}/{self.SQLITE_NAME}'
 
     class Config:
         env_file = f'{BASE_DIR}.env'
