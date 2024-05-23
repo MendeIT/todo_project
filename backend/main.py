@@ -4,12 +4,13 @@ import uvicorn
 from fastapi import FastAPI
 
 from api.routers.todo import todo_router
+from core.config import settings
 from db import database, models
 
 # Создание таблиц в БД SQLite3
 models.Base.metadata.create_all(database.engine)
 
-app = FastAPI(debug=True)
+app = FastAPI(debug=settings.DEBUG)
 
 app.include_router(todo_router)
 
@@ -17,9 +18,9 @@ app.include_router(todo_router)
 def start_server():
     uvicorn.run(
         app="main:app",
-        host="127.0.0.1",
-        port=8000,
-        reload=True
+        host=settings.HOST,
+        port=settings.PORT,
+        reload=settings.DEBUG
     )
 
 

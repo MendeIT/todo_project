@@ -4,8 +4,7 @@ from sqlalchemy.orm import sessionmaker
 
 from core.config import settings
 
-# убрать echo=True, только для debug
-engine = create_engine(settings.DATABASE_URL, echo=True)
+engine = create_engine(settings.DATABASE_URL, echo=settings.DEBUG)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

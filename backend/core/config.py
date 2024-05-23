@@ -9,6 +9,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 class Settings(BaseSettings):
+    DEBUG: str
+    HOST: str
+    PORT: str
+
     DB_NAME: str
 
     @property
