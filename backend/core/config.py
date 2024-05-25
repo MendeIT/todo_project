@@ -12,11 +12,19 @@ class Settings(BaseSettings):
     DEBUG: bool
     UVICORN_HOST: str
     UVICORN_PORT: int
-    SQLITE_NAME: str
+    POSTGRES_HOST: str
+    POSTGRES_PORT: str
+    POSTGRES_USER: str
+    POSTGRES_PASS: str
+    POSTGRES_NAME: str
 
     @property
-    def DATABASE_URL(self):
-        return f'sqlite:///{BASE_DIR}/{self.SQLITE_NAME}'
+    def ASYNC_DATABASE_URL(self):
+        """Путь для асинхронного подключения к PostgreSQL."""
+        return ("postgresql+asyncpg://"
+                f"{self.POSTGRES_USER}:{self.POSTGRES_PASS}@"
+                f"{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/"
+                f"{self.POSTGRES_NAME}")
 
     class Config:
         env_file = f'{BASE_DIR}.env'

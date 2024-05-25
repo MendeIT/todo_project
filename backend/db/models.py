@@ -1,13 +1,13 @@
-from sqlalchemy import (
-    Boolean,
-    Column,
-    # ForeignKey,
-    Integer,
-    String
-)
-# from sqlalchemy.orm import relationship
+from sqlalchemy import (Boolean,
+                        Column,
+                        # ForeignKey,
+                        Integer,
+                        String)
+from sqlalchemy.orm import DeclarativeBase
 
-from db.database import Base
+
+class Base(DeclarativeBase):
+    pass
 
 
 class Todo(Base):

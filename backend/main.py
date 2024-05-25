@@ -1,3 +1,4 @@
+import asyncio
 import sys
 
 import uvicorn
@@ -5,9 +6,8 @@ from fastapi import FastAPI
 
 from api.routers.todo import todo_router
 from core.config import settings
-from db import database
+from db.database import init_models
 
-database.init_db()
 
 app = FastAPI(debug=settings.DEBUG)
 
@@ -23,10 +23,15 @@ def start_server():
     )
 
 
+async def main():
+    await init_models() if settings.DEBUG else ...
+    start_server()
+
+
 if __name__ == "__main__":
     try:
-        start_server()
-    except Exception:
+        asyncio.run(main())
+    except (asyncio.exceptions.CancelledError, KeyboardInterrupt):
         message = 'Interrupted!'
         print(f'{message:_^50}')
         sys.exit(0)

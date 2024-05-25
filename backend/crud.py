@@ -1,74 +1,71 @@
 from fastapi import HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy import delete, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from db.models import Todo
-from api.schemas import todo
+from api.schemas import todo as schema
 
 
-def _check_DoesNotExists(todo: Todo) -> HTTPException:
+def _check_DoesNotExists(object):
     """Ошибка. Искомый объект отсутствет в БД."""
 
-    if todo is None or todo == 0:
+    if object is None or object == 0:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="The requested object does not exist."
         )
 
-    pass
+
+async def get_all(session: AsyncSession, skip: int = 0, limit: int = 100):
+    """GET. Получение списка из БД."""
+    query = select(Todo).offset(skip).limit(limit)
+    results = await session.execute(query)
+    return results.scalars().all()
 
 
-def get_todos(db: Session, skip: int = 0, limit: int = 100) -> list[Todo]:
-    """GET. Получение списка задач из БД."""
-    return db.query(Todo).offset(skip).limit(limit).all()
+async def get_one(session: AsyncSession, object_id: int):
+    """GET. Получение одного объекта из БД."""
+    query = select(Todo).where(Todo.id == object_id)
+    results = await session.execute(query)
+    todo = results.scalar_one_or_none()
+    _check_DoesNotExists(todo)
+
+    return todo
 
 
-def get_todo(db: Session, todo_id: int) -> Todo:
-    """GET. Получение задачи из БД."""
-    db_todo = db.query(Todo).get(todo_id)
+async def create_one(
+    session: AsyncSession,
+    object: schema.CreateTodoSchema
+) -> schema.TodoSchema:
+    """POST. Создание и сохранение в БД."""
+    new_todo = Todo(**object.model_dump())
+    session.add(new_todo)
+    await session.commit()
+    await session.refresh(new_todo)
 
-    _check_DoesNotExists(db_todo)
-
-    return db_todo
-
-
-def create_todo(db: Session, todo: todo.CreateTodoSchema) -> Todo:
-    """POST. Создание задачи и сохранение в БД."""
-    try:
-        db_todo = Todo(**todo.model_dump())
-        db.add(db_todo)
-        db.commit()
-        db.refresh(db_todo)
-    except Exception as error:
-        db.rollback()
-        raise error
-    else:
-        return db_todo
+    return new_todo
 
 
-def update_todo(
-    db: Session,
-    todo_id: int,
-    todo: todo.UpdateTodoSchema
+async def update_one(
+    session: AsyncSession,
+    object_id: int,
+    object: schema.UpdateTodoSchema
 ) -> Todo:
-    """PUT. Обновление/выполнение задачи с сохранением в БД."""
+    """PUT. Обновление с сохранением в БД."""
+    query = select(Todo).where(Todo.id == object_id)
+    result = await session.execute(query)
+    todo = result.scalar_one_or_none()
+    _check_DoesNotExists(todo)
+    todo.title = object.title
+    todo.description = object.description
+    todo.completed = object.completed
+    await session.commit()
 
-    db_todo = db.query(Todo).get(todo_id)
-
-    _check_DoesNotExists(db_todo)
-
-    db_todo.title = todo.title
-    db_todo.description = todo.description
-    db_todo.completed = True if todo.completed is True else False
-    db.commit()
-
-    return db_todo
+    return todo
 
 
-def delete_todo(db: Session, todo_id: int):
+async def delete_one(session: AsyncSession, object_id: int):
     """DELETE. Удаление из БД задачи."""
-
-    del_todo = db.query(Todo).filter(Todo.id == todo_id).delete()
-
-    _check_DoesNotExists(del_todo)
-
-    db.commit()
+    query = delete(Todo).where(Todo.id == object_id)
+    await session.execute(query)
+    await session.commit()

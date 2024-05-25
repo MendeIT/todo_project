@@ -1,22 +1,32 @@
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from typing import AsyncGenerator
+
+from sqlalchemy.ext.asyncio import (AsyncSession,
+                                    async_sessionmaker,
+                                    create_async_engine)
 
 from core.config import settings
+from db.models import Base
 
-engine = create_engine(settings.DATABASE_URL, echo=settings.DEBUG)
+async_engine = create_async_engine(
+    url=settings.ASYNC_DATABASE_URL,
+    echo=settings.DEBUG,
+)
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+async_session_maker = async_sessionmaker(
+    bind=async_engine,
+    class_=AsyncSession,
+    expire_on_commit=False
+)
 
-Base = declarative_base()
 
-
-def init_db():
+async def init_models():
     """Создание БД."""
-    Base.metadata.create_all(engine)
+    async with async_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
 
 
-def get_db():
+async def get_session() -> AsyncGenerator[AsyncSession, None]:
     """Подключение к БД."""
-    with SessionLocal() as db:
-        yield db
+    async with async_session_maker() as session:
+        yield session
