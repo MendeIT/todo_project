@@ -6,7 +6,7 @@ from fastapi import FastAPI
 
 from api.routers.todo import todo_router
 from core.config import settings
-from db.database import init_models
+from db.database import init_models  # noqa
 
 
 app = FastAPI(debug=settings.DEBUG)
@@ -24,7 +24,7 @@ def start_server():
 
 
 async def main():
-    await init_models() if settings.DEBUG else ...
+    # await init_models() if settings.DEBUG else ...
     start_server()
 
 
