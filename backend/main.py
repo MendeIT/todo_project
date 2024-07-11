@@ -5,13 +5,19 @@ import uvicorn
 from fastapi import FastAPI
 
 from api.routers.todo import todo_router
+from api.routers.users import user_router
+from auth.schema import auth_router
 from core.config import settings
 from db.database import init_models  # noqa
-
+from exceptions import setup_exception_handlers
 
 app = FastAPI(debug=settings.DEBUG)
 
 app.include_router(todo_router)
+app.include_router(user_router)
+app.include_router(auth_router)
+
+setup_exception_handlers(app)
 
 
 def start_server():
@@ -24,7 +30,9 @@ def start_server():
 
 
 async def main():
-    # await init_models() if settings.DEBUG else ...
+    # if settings.DEBUG:
+    #     logger.info("Функция init_models() запущена")
+    #     await init_models()
     start_server()
 
 

@@ -20,7 +20,7 @@ async_session_maker = async_sessionmaker(
 
 
 async def init_models():
-    """Создание БД."""
+    """Создание БД и удаление записей в БД."""
     async with async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)

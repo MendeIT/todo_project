@@ -17,6 +17,10 @@ class Settings(BaseSettings):
     POSTGRES_USER: str
     POSTGRES_PASS: str
     POSTGRES_NAME: str
+    JWT_PRIVATE_PATH: Path = BASE_DIR/"certs"/"jwt-private.pem"
+    JWT_PUBLIC_PATH: Path = BASE_DIR/"certs"/"jwt-public.pem"
+    JWT_ALGORITHM: str
+    TOKEN_EXPIRATION_DATE_IN_MINUTES: int
 
     @property
     def ASYNC_DATABASE_URL(self):

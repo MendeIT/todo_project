@@ -2,8 +2,9 @@ from pydantic import BaseModel, Field
 
 
 class TodoBaseSchema(BaseModel):
-    title: str = Field(min_length=3, max_length=60)
-    description: str = Field(min_length=3, max_length=250)
+    title: str = Field(min_length=3, max_length=64)
+    description: str = Field(min_length=3, max_length=256)
+    completed: bool = False
 
 
 class CreateTodoSchema(TodoBaseSchema):
@@ -20,7 +21,7 @@ class DeleteTodoSchema(TodoBaseSchema):
 
 class TodoSchema(TodoBaseSchema):
     id: int
-    completed: bool = False
+    author_id: int
 
     class Config:
         from_attributes = True
